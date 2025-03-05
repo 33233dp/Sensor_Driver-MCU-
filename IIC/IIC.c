@@ -35,17 +35,18 @@ void IICdelay_us(unsigned char ms)
 
 void IIC_Start(void)
 {
-   sda_PinSet(1);
-   IICdelay_us(4);
+    SetSDA_Output();
+    sda_PinSet(1);
+    IICdelay_us(4);
 
-   scl_Pinset(1);
-   IICdelay_us(4);
+    scl_Pinset(1);
+    IICdelay_us(4);
 
-   sda_PinSet(0);
-   IICdelay_us(4);
+    sda_PinSet(0);
+    IICdelay_us(4);
 
-   scl_Pinset(0);
-   IICdelay_us(4);
+    scl_Pinset(0);
+    IICdelay_us(4);
 }
 
 
@@ -66,8 +67,11 @@ void IIC_sendByte(unsigned char Data)
     for(i = 0; i < 8; i++)
     {
         sda_PinSet(Data & (0x80 >> i));
+        IICdelay_us(4);
         scl_Pinset(1);
+        IICdelay_us(4);
         scl_Pinset(0);
+        IICdelay_us(4);
     }
 }
 
@@ -80,21 +84,43 @@ unsigned char IIC_reciveByte(void)
     unsigned char recv_data = 0x00;
     SetSDA_Input();
     sda_PinSet(1);//释放总线
+
     for(i = 0; i < 8; i++)
     {
         scl_Pinset(1);
+        IICdelay_us(4);
         if(ReadSDA()) {recv_data |= (0x80 >> i);}
+        IICdelay_us(4);
         scl_Pinset(0);
+        IICdelay_us(4);
     }
+
     SetSDA_Output();
+    return recv_data;
 }
 
 
 void IIC_sendACK(unsigned char ACK)
 {
- 
+    sda_PinSet(ACK);
+    IICdelay_us(4);
+    scl_Pinset(1);
+    IICdelay_us(4);
+    scl_Pinset(0);
+    IICdelay_us(4);
 }
 unsigned char IIC_recevieACK(void)
 {
- 
+    unsigned char recv_ACK;
+
+    sda_PinSet(1); //释放总线
+    SetSDA_Input();
+    scl_Pinset(1);
+    IICdelay_us(4);
+    recv_ACK = ReadSDA();
+    IICdelay_us(4);
+    scl_Pinset(0);
+    SetSDA_Output();
+
+    return recv_ACK;
 }
